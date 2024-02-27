@@ -211,7 +211,6 @@ impl Constraint {
                                 None,
                                 gens1,
                                 gens2,
-                                "receiver function type argument",
                             )?;
                         }
                     }
@@ -222,7 +221,6 @@ impl Constraint {
                         None,
                         &args1.iter().map(|(_, ty)| ty.clone()).collect_vec(),
                         &args2.iter().map(|(_, ty)| ty.clone()).collect_vec(),
-                        "receiver function argument",
                     )?;
                     subs.unify(
                         context,
@@ -1261,7 +1259,6 @@ impl Substitution {
                                 None,
                                 ty_args,
                                 &receiver.type_inst,
-                                "type argument",
                             )?;
                         }
                         self.unify_vec(
@@ -1272,7 +1269,6 @@ impl Substitution {
                             Some(&args.iter().map(|(loc, _)| loc.clone()).collect_vec()),
                             &args.iter().map(|(_, ty)| ty.clone()).collect_vec(),
                             &receiver.arg_types,
-                            "receiver function argument",
                         )?;
                         // Result is contra-variant, hence RightToLeft
                         self.unify(
@@ -1524,7 +1520,7 @@ impl Substitution {
     /// so this may make create more noise than benefit.
     pub fn unify_and_lift_critical_pair(
         &mut self,
-        context: &impl UnificationContext,
+        context: &mut impl UnificationContext,
         variance: Variance,
         order: WideningOrder,
         t1: &Type,
@@ -1574,10 +1570,7 @@ impl Substitution {
                 } else {
                     (ts2n, ts1n)
                 };
-            return Err(TypeUnificationError::ArityMismatch(
-                given,
-                expected,
-            ));
+            return Err(TypeUnificationError::ArityMismatch(given, expected));
         }
         let mut rs = vec![];
         for i in 0..ts1.len() {

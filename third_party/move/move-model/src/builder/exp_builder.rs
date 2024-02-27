@@ -19,8 +19,8 @@ use crate::{
     symbol::{Symbol, SymbolPool},
     ty::{
         Constraint, ErrorMessageContext, PrimitiveType, ReceiverFunctionInstance, ReferenceKind,
-        Substitution, Type, TypeDisplayContext, TypeUnificationError, UnificationContext, Variance, WideningOrder,
-        BOOL_TYPE,
+        Substitution, Type, TypeDisplayContext, TypeUnificationError, UnificationContext, Variance,
+        WideningOrder, BOOL_TYPE,
     },
 };
 use codespan_reporting::diagnostic::Severity;
@@ -97,7 +97,7 @@ pub enum ExpPlaceholder {
     /// If attached to an expression, a placeholder for an field selection for which the full
     /// structure type was not known yet, but should be at the end of function body checking.
     FieldSelectInfo { struct_ty: Type, field_name: Symbol },
-    /// If attached to an expression, a placeholder for a method call which has not been
+    /// If attached to an expression, a placeholder for a receiver call which has not been
     /// resolved yet, but should be at the end of function body checking.
     ReceiverCallInfo {
         name: Symbol,
@@ -163,10 +163,6 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
             et.old_status = OldExpStatus::NotSupported;
         };
         et
-    }
-
-    fn env(&self) -> &GlobalEnv {
-        self.parent.parent.env
     }
 
     pub fn set_spec_block_map(&mut self, map: BTreeMap<EA::SpecId, EA::SpecBlock>) {
@@ -452,6 +448,7 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
         let mut ctx = self.parent.parent.type_display_context();
         ctx.type_param_names = Some(self.type_params.iter().map(|(s, _, _)| *s).collect());
         ctx.subs_opt = Some(&self.subs);
+        ctx.module_name = Some(self.parent.module_name.clone());
         ctx
     }
 
@@ -1595,7 +1592,7 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
         locals
     }
 
-    /// This method:
+    /// This function:
     /// 1) Post processes any placeholders which have been generated while translating expressions
     /// with this builder. This rewrites the given result expression and fills in placeholders
     /// with the final expressions.
@@ -1702,7 +1699,6 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
                                             None,
                                             &arg_types,
                                             &inst.arg_types,
-                                            "",
                                         );
                                         let _ = subs.unify(
                                             self,
@@ -2131,8 +2127,11 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
         debug_assert!(matches!(kind, CallKind::Regular | CallKind::Receiver));
 
         // Handle some special cases.
-        if let Some(value) =
-            self.translate_fun_call_special_cases(expected_type, loc, kind, maccess,
+        if let Some(value) = self.translate_fun_call_special_cases(
+            expected_type,
+            loc,
+            kind,
+            maccess,
             generics,
             args,
             context,
@@ -2160,8 +2159,10 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
             }
         }
 
-        let result =
-            self.translate_call(loc, kind, &module_name,
+        let result = self.translate_call(
+            loc,
+            kind,
+            &module_name,
             name,
             generics,
             args,
@@ -2827,7 +2828,7 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
         // Translate arguments.
         let (arg_types, mut translated_args) = self.translate_exp_list(args);
 
-        // If this is a receiver style call, we do deferred function target inference via a Constraint
+        // Special handling of receiver call functions
         if kind == CallKind::Receiver {
             debug_assert!(
                 module.is_none(),
@@ -2917,10 +2918,7 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
                     outruled.push((
                         cand,
                         err.specific_loc(),
-                        err.message(
-                            &display_context,
-                            &ErrorMessageContext::General,
-                        ),
+                        err.message(self, &display_context, &ErrorMessageContext::General),
                     ));
                     continue;
                 }
@@ -2955,11 +2953,7 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
                     };
                     let mut display_context = self.type_display_context();
                     display_context.subs_opt = Some(&subs);
-                    outruled.push((
-                        cand,
-                        arg_loc,
-                        err.message(&display_context, context),
-                    ));
+                    outruled.push((cand, arg_loc, err.message(self, &display_context, context)));
                     success = false;
                     break;
                 }
@@ -3789,10 +3783,7 @@ impl<'env, 'translator, 'module_translator> ExpTranslator<'env, 'translator, 'mo
         let tctx = self.type_display_context();
         self.error(
             &err.specific_loc().unwrap_or_else(|| loc.clone()),
-            &err.message(
-                &self.type_display_context(),
-                context,
-            ),
+            &err.message(self, &tctx, context),
         )
     }
 

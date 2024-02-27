@@ -252,6 +252,8 @@ impl<'env> ModelBuilder<'env> {
             subs_opt: None,
             // For types which are not yet in the GlobalEnv
             builder_struct_table: Some(&self.reverse_struct_table),
+            module_name: None,
+            display_type_vars: false,
         }
     }
 
