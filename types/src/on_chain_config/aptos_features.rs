@@ -61,6 +61,7 @@ pub enum FeatureFlag {
     REFUNDABLE_BYTES = 51,
     OBJECT_CODE_DEPLOYMENT = 52,
     MAX_OBJECT_NESTING_CHECK = 53,
+    MODULE_EVENT_MIGRATION = 54,
 }
 
 impl FeatureFlag {
@@ -112,6 +113,7 @@ impl FeatureFlag {
             FeatureFlag::REFUNDABLE_BYTES,
             FeatureFlag::OBJECT_CODE_DEPLOYMENT,
             FeatureFlag::MAX_OBJECT_NESTING_CHECK,
+            FeatureFlag::MODULE_EVENT_MIGRATION,
         ]
     }
 }

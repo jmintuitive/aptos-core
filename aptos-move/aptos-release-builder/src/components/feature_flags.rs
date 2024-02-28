@@ -104,6 +104,7 @@ pub enum FeatureFlag {
     RefundableBytes,
     ObjectCodeDeployment,
     MaxObjectNestingCheck,
+    ModuleEventMigration,
 }
 
 fn generate_features_blob(writer: &CodeWriter, data: &[u64]) {
@@ -192,39 +193,39 @@ impl From<FeatureFlag> for AptosFeatureFlag {
             FeatureFlag::CodeDependencyCheck => AptosFeatureFlag::CODE_DEPENDENCY_CHECK,
             FeatureFlag::CollectAndDistributeGasFees => {
                 AptosFeatureFlag::COLLECT_AND_DISTRIBUTE_GAS_FEES
-            },
+            }
             FeatureFlag::TreatFriendAsPrivate => AptosFeatureFlag::TREAT_FRIEND_AS_PRIVATE,
             FeatureFlag::Sha512AndRipeMd160Natives => {
                 AptosFeatureFlag::SHA_512_AND_RIPEMD_160_NATIVES
-            },
+            }
             FeatureFlag::AptosStdChainIdNatives => AptosFeatureFlag::APTOS_STD_CHAIN_ID_NATIVES,
             FeatureFlag::VMBinaryFormatV6 => AptosFeatureFlag::VM_BINARY_FORMAT_V6,
             FeatureFlag::VMBinaryFormatV7 => AptosFeatureFlag::VM_BINARY_FORMAT_V7,
             FeatureFlag::MultiEd25519PkValidateV2Natives => {
                 AptosFeatureFlag::MULTI_ED25519_PK_VALIDATE_V2_NATIVES
-            },
+            }
             FeatureFlag::Blake2b256Native => AptosFeatureFlag::BLAKE2B_256_NATIVE,
             FeatureFlag::ResourceGroups => AptosFeatureFlag::RESOURCE_GROUPS,
             FeatureFlag::MultisigAccounts => AptosFeatureFlag::MULTISIG_ACCOUNTS,
             FeatureFlag::DelegationPools => AptosFeatureFlag::DELEGATION_POOLS,
             FeatureFlag::CryptographyAlgebraNatives => {
                 AptosFeatureFlag::CRYPTOGRAPHY_ALGEBRA_NATIVES
-            },
+            }
             FeatureFlag::Bls12381Structures => AptosFeatureFlag::BLS12_381_STRUCTURES,
             FeatureFlag::Ed25519PubkeyValidateReturnFalseWrongLength => {
                 AptosFeatureFlag::ED25519_PUBKEY_VALIDATE_RETURN_FALSE_WRONG_LENGTH
-            },
+            }
             FeatureFlag::StructConstructors => AptosFeatureFlag::STRUCT_CONSTRUCTORS,
             FeatureFlag::PeriodicalRewardRateReduction => {
                 AptosFeatureFlag::PERIODICAL_REWARD_RATE_DECREASE
-            },
+            }
             FeatureFlag::PartialGovernanceVoting => AptosFeatureFlag::PARTIAL_GOVERNANCE_VOTING,
             FeatureFlag::SignatureCheckerV2 => AptosFeatureFlag::SIGNATURE_CHECKER_V2,
             FeatureFlag::StorageSlotMetadata => AptosFeatureFlag::STORAGE_SLOT_METADATA,
             FeatureFlag::ChargeInvariantViolation => AptosFeatureFlag::CHARGE_INVARIANT_VIOLATION,
             FeatureFlag::DelegationPoolPartialGovernanceVoting => {
                 AptosFeatureFlag::DELEGATION_POOL_PARTIAL_GOVERNANCE_VOTING
-            },
+            }
             FeatureFlag::GasPayerEnabled => AptosFeatureFlag::GAS_PAYER_ENABLED,
             FeatureFlag::AptosUniqueIdentifiers => AptosFeatureFlag::APTOS_UNIQUE_IDENTIFIERS,
             FeatureFlag::BulletproofsNatives => AptosFeatureFlag::BULLETPROOFS_NATIVES,
@@ -235,13 +236,13 @@ impl From<FeatureFlag> for AptosFeatureFlag {
             FeatureFlag::AggregatorV2Api => AptosFeatureFlag::AGGREGATOR_V2_API,
             FeatureFlag::SignatureCheckerV2ScriptFix => {
                 AptosFeatureFlag::SIGNATURE_CHECKER_V2_SCRIPT_FIX
-            },
+            }
             FeatureFlag::SaferResourceGroups => AptosFeatureFlag::SAFER_RESOURCE_GROUPS,
             FeatureFlag::SaferMetadata => AptosFeatureFlag::SAFER_METADATA,
             FeatureFlag::SingleSenderAuthenticator => AptosFeatureFlag::SINGLE_SENDER_AUTHENTICATOR,
             FeatureFlag::SponsoredAutomaticAccountCreation => {
                 AptosFeatureFlag::SPONSORED_AUTOMATIC_ACCOUNT_V1_CREATION
-            },
+            }
             FeatureFlag::FeePayerAccountOptional => AptosFeatureFlag::FEE_PAYER_ACCOUNT_OPTIONAL,
             FeatureFlag::AggregatorV2DelayedFields => {
                 AptosFeatureFlag::AGGREGATOR_V2_DELAYED_FIELDS
@@ -266,6 +267,7 @@ impl From<FeatureFlag> for AptosFeatureFlag {
             FeatureFlag::RefundableBytes => AptosFeatureFlag::REFUNDABLE_BYTES,
             FeatureFlag::ObjectCodeDeployment => AptosFeatureFlag::OBJECT_CODE_DEPLOYMENT,
             FeatureFlag::MaxObjectNestingCheck => AptosFeatureFlag::MAX_OBJECT_NESTING_CHECK,
+            FeatureFlag::ModuleEventMigration => AptosFeatureFlag::MODULE_EVENT_MIGRATION,
         }
     }
 }
@@ -277,39 +279,39 @@ impl From<AptosFeatureFlag> for FeatureFlag {
             AptosFeatureFlag::CODE_DEPENDENCY_CHECK => FeatureFlag::CodeDependencyCheck,
             AptosFeatureFlag::COLLECT_AND_DISTRIBUTE_GAS_FEES => {
                 FeatureFlag::CollectAndDistributeGasFees
-            },
+            }
             AptosFeatureFlag::TREAT_FRIEND_AS_PRIVATE => FeatureFlag::TreatFriendAsPrivate,
             AptosFeatureFlag::SHA_512_AND_RIPEMD_160_NATIVES => {
                 FeatureFlag::Sha512AndRipeMd160Natives
-            },
+            }
             AptosFeatureFlag::APTOS_STD_CHAIN_ID_NATIVES => FeatureFlag::AptosStdChainIdNatives,
             AptosFeatureFlag::VM_BINARY_FORMAT_V6 => FeatureFlag::VMBinaryFormatV6,
             AptosFeatureFlag::VM_BINARY_FORMAT_V7 => FeatureFlag::VMBinaryFormatV7,
             AptosFeatureFlag::MULTI_ED25519_PK_VALIDATE_V2_NATIVES => {
                 FeatureFlag::MultiEd25519PkValidateV2Natives
-            },
+            }
             AptosFeatureFlag::BLAKE2B_256_NATIVE => FeatureFlag::Blake2b256Native,
             AptosFeatureFlag::RESOURCE_GROUPS => FeatureFlag::ResourceGroups,
             AptosFeatureFlag::MULTISIG_ACCOUNTS => FeatureFlag::MultisigAccounts,
             AptosFeatureFlag::DELEGATION_POOLS => FeatureFlag::DelegationPools,
             AptosFeatureFlag::CRYPTOGRAPHY_ALGEBRA_NATIVES => {
                 FeatureFlag::CryptographyAlgebraNatives
-            },
+            }
             AptosFeatureFlag::BLS12_381_STRUCTURES => FeatureFlag::Bls12381Structures,
             AptosFeatureFlag::ED25519_PUBKEY_VALIDATE_RETURN_FALSE_WRONG_LENGTH => {
                 FeatureFlag::Ed25519PubkeyValidateReturnFalseWrongLength
-            },
+            }
             AptosFeatureFlag::STRUCT_CONSTRUCTORS => FeatureFlag::StructConstructors,
             AptosFeatureFlag::PERIODICAL_REWARD_RATE_DECREASE => {
                 FeatureFlag::PeriodicalRewardRateReduction
-            },
+            }
             AptosFeatureFlag::PARTIAL_GOVERNANCE_VOTING => FeatureFlag::PartialGovernanceVoting,
             AptosFeatureFlag::SIGNATURE_CHECKER_V2 => FeatureFlag::SignatureCheckerV2,
             AptosFeatureFlag::STORAGE_SLOT_METADATA => FeatureFlag::StorageSlotMetadata,
             AptosFeatureFlag::CHARGE_INVARIANT_VIOLATION => FeatureFlag::ChargeInvariantViolation,
             AptosFeatureFlag::DELEGATION_POOL_PARTIAL_GOVERNANCE_VOTING => {
                 FeatureFlag::DelegationPoolPartialGovernanceVoting
-            },
+            }
             AptosFeatureFlag::GAS_PAYER_ENABLED => FeatureFlag::GasPayerEnabled,
             AptosFeatureFlag::APTOS_UNIQUE_IDENTIFIERS => FeatureFlag::AptosUniqueIdentifiers,
             AptosFeatureFlag::BULLETPROOFS_NATIVES => FeatureFlag::BulletproofsNatives,
@@ -320,13 +322,13 @@ impl From<AptosFeatureFlag> for FeatureFlag {
             AptosFeatureFlag::AGGREGATOR_V2_API => FeatureFlag::AggregatorV2Api,
             AptosFeatureFlag::SIGNATURE_CHECKER_V2_SCRIPT_FIX => {
                 FeatureFlag::SignatureCheckerV2ScriptFix
-            },
+            }
             AptosFeatureFlag::SAFER_RESOURCE_GROUPS => FeatureFlag::SaferResourceGroups,
             AptosFeatureFlag::SAFER_METADATA => FeatureFlag::SaferMetadata,
             AptosFeatureFlag::SINGLE_SENDER_AUTHENTICATOR => FeatureFlag::SingleSenderAuthenticator,
             AptosFeatureFlag::SPONSORED_AUTOMATIC_ACCOUNT_V1_CREATION => {
                 FeatureFlag::SponsoredAutomaticAccountCreation
-            },
+            }
             AptosFeatureFlag::FEE_PAYER_ACCOUNT_OPTIONAL => FeatureFlag::FeePayerAccountOptional,
             AptosFeatureFlag::AGGREGATOR_V2_DELAYED_FIELDS => {
                 FeatureFlag::AggregatorV2DelayedFields
@@ -351,6 +353,7 @@ impl From<AptosFeatureFlag> for FeatureFlag {
             AptosFeatureFlag::REFUNDABLE_BYTES => FeatureFlag::RefundableBytes,
             AptosFeatureFlag::OBJECT_CODE_DEPLOYMENT => FeatureFlag::ObjectCodeDeployment,
             AptosFeatureFlag::MAX_OBJECT_NESTING_CHECK => FeatureFlag::MaxObjectNestingCheck,
+            AptosFeatureFlag::MODULE_EVENT_MIGRATION => FeatureFlag::ModuleEventMigration,
         }
     }
 }
@@ -362,9 +365,9 @@ impl Features {
             .iter()
             .any(|f| !on_chain_features.is_enabled(AptosFeatureFlag::from(f.clone())))
             || self
-                .disabled
-                .iter()
-                .any(|f| on_chain_features.is_enabled(AptosFeatureFlag::from(f.clone())))
+            .disabled
+            .iter()
+            .any(|f| on_chain_features.is_enabled(AptosFeatureFlag::from(f.clone())))
     }
 }
 
