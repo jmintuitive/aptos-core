@@ -432,13 +432,15 @@ module aptos_framework::object {
             object.owner == ref.owner,
             error::permission_denied(ENOT_OBJECT_OWNER),
         );
-        event::emit(
-            TransferEvent {
-                object: ref.self,
-                from: object.owner,
-                to,
-            },
-        );
+        if (std::features::module_event_migration_enabled()) {
+            event::emit(
+                TransferEvent {
+                    object: ref.self,
+                    from: object.owner,
+                    to,
+                },
+            );
+        };
         event::emit_event(
             &mut object.transfer_events,
             TransferEvent {

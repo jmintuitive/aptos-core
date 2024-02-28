@@ -1529,7 +1529,9 @@ Return all pending transactions.
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="multisig_account.md#0x1_multisig_account_get_pending_transactions">get_pending_transactions</a>(<a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: <b>address</b>): <a href="../../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;<a href="multisig_account.md#0x1_multisig_account_MultisigTransaction">MultisigTransaction</a>&gt; <b>acquires</b> <a href="multisig_account.md#0x1_multisig_account_MultisigAccount">MultisigAccount</a> {
+<pre><code><b>public</b> <b>fun</b> <a href="multisig_account.md#0x1_multisig_account_get_pending_transactions">get_pending_transactions</a>(
+    <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: <b>address</b>
+): <a href="../../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;<a href="multisig_account.md#0x1_multisig_account_MultisigTransaction">MultisigTransaction</a>&gt; <b>acquires</b> <a href="multisig_account.md#0x1_multisig_account_MultisigAccount">MultisigAccount</a> {
     <b>let</b> pending_transactions: <a href="../../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>&lt;<a href="multisig_account.md#0x1_multisig_account_MultisigTransaction">MultisigTransaction</a>&gt; = <a href="../../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector">vector</a>[];
     <b>let</b> <a href="multisig_account.md#0x1_multisig_account">multisig_account</a> = <b>borrow_global</b>&lt;<a href="multisig_account.md#0x1_multisig_account_MultisigAccount">MultisigAccount</a>&gt;(<a href="multisig_account.md#0x1_multisig_account">multisig_account</a>);
     <b>let</b> i = <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>.last_executed_sequence_number + 1;
@@ -2473,6 +2475,15 @@ maliciously alter the number of signatures required.
     };
 
     <b>if</b> (emit_event) {
+        <b>if</b> (std::features::module_event_migration_enabled()) {
+            emit(
+                <a href="multisig_account.md#0x1_multisig_account_MetadataUpdated">MetadataUpdated</a> {
+                    <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_address,
+                    old_metadata,
+                    new_metadata: multisig_account_resource.metadata,
+                }
+            )
+        };
         emit_event(
             &<b>mut</b> multisig_account_resource.metadata_updated_events,
             <a href="multisig_account.md#0x1_multisig_account_MetadataUpdatedEvent">MetadataUpdatedEvent</a> {
@@ -2480,13 +2491,6 @@ maliciously alter the number of signatures required.
                 new_metadata: multisig_account_resource.metadata,
             }
         );
-        emit(
-            <a href="multisig_account.md#0x1_multisig_account_MetadataUpdated">MetadataUpdated</a> {
-                <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_address,
-                old_metadata,
-                new_metadata: multisig_account_resource.metadata,
-            }
-        )
     };
 }
 </code></pre>
@@ -2672,6 +2676,16 @@ Generic function that can be used to either approve or reject a multisig transac
         <a href="../../aptos-stdlib/doc/simple_map.md#0x1_simple_map_add">simple_map::add</a>(votes, owner_addr, approved);
     };
 
+    <b>if</b> (std::features::module_event_migration_enabled()) {
+        emit(
+            <a href="multisig_account.md#0x1_multisig_account_Vote">Vote</a> {
+                <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>,
+                owner: owner_addr,
+                sequence_number,
+                approved,
+            }
+        );
+    };
     emit_event(
         &<b>mut</b> multisig_account_resource.vote_events,
         <a href="multisig_account.md#0x1_multisig_account_VoteEvent">VoteEvent</a> {
@@ -2680,14 +2694,6 @@ Generic function that can be used to either approve or reject a multisig transac
             approved,
         }
     );
-    emit(
-        <a href="multisig_account.md#0x1_multisig_account_Vote">Vote</a> {
-            <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>,
-            owner: owner_addr,
-            sequence_number,
-            approved,
-        }
-    )
 }
 </code></pre>
 
@@ -2729,17 +2735,19 @@ Remove the next transaction if it has sufficient owner rejections.
         <a href="../../aptos-stdlib/../move-stdlib/doc/error.md#0x1_error_invalid_state">error::invalid_state</a>(<a href="multisig_account.md#0x1_multisig_account_ENOT_ENOUGH_REJECTIONS">ENOT_ENOUGH_REJECTIONS</a>),
     );
 
+    <b>if</b> (std::features::module_event_migration_enabled()) {
+        emit(
+            <a href="multisig_account.md#0x1_multisig_account_ExecuteRejectedTransaction">ExecuteRejectedTransaction</a> {
+                <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>,
+                sequence_number,
+                num_rejections,
+                executor: address_of(owner),
+            }
+        );
+    };
     emit_event(
         &<b>mut</b> multisig_account_resource.execute_rejected_transaction_events,
         <a href="multisig_account.md#0x1_multisig_account_ExecuteRejectedTransactionEvent">ExecuteRejectedTransactionEvent</a> {
-            sequence_number,
-            num_rejections,
-            executor: address_of(owner),
-        }
-    );
-    emit(
-        <a href="multisig_account.md#0x1_multisig_account_ExecuteRejectedTransaction">ExecuteRejectedTransaction</a> {
-            <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>,
             sequence_number,
             num_rejections,
             executor: address_of(owner),
@@ -2828,18 +2836,20 @@ This function is private so no other code can call this beside the VM itself as 
 ) <b>acquires</b> <a href="multisig_account.md#0x1_multisig_account_MultisigAccount">MultisigAccount</a> {
     <b>let</b> multisig_account_resource = <b>borrow_global_mut</b>&lt;<a href="multisig_account.md#0x1_multisig_account_MultisigAccount">MultisigAccount</a>&gt;(<a href="multisig_account.md#0x1_multisig_account">multisig_account</a>);
     <b>let</b> (num_approvals, _) = <a href="multisig_account.md#0x1_multisig_account_remove_executed_transaction">remove_executed_transaction</a>(multisig_account_resource);
+    <b>if</b> (std::features::module_event_migration_enabled()) {
+        emit(
+            <a href="multisig_account.md#0x1_multisig_account_TransactionExecutionSucceeded">TransactionExecutionSucceeded</a> {
+                <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>,
+                sequence_number: multisig_account_resource.last_executed_sequence_number,
+                transaction_payload,
+                num_approvals,
+                executor,
+            }
+        );
+    };
     emit_event(
         &<b>mut</b> multisig_account_resource.execute_transaction_events,
         <a href="multisig_account.md#0x1_multisig_account_TransactionExecutionSucceededEvent">TransactionExecutionSucceededEvent</a> {
-            sequence_number: multisig_account_resource.last_executed_sequence_number,
-            transaction_payload,
-            num_approvals,
-            executor,
-        }
-    );
-    emit(
-        <a href="multisig_account.md#0x1_multisig_account_TransactionExecutionSucceeded">TransactionExecutionSucceeded</a> {
-            <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>,
             sequence_number: multisig_account_resource.last_executed_sequence_number,
             transaction_payload,
             num_approvals,
@@ -2878,19 +2888,21 @@ This function is private so no other code can call this beside the VM itself as 
 ) <b>acquires</b> <a href="multisig_account.md#0x1_multisig_account_MultisigAccount">MultisigAccount</a> {
     <b>let</b> multisig_account_resource = <b>borrow_global_mut</b>&lt;<a href="multisig_account.md#0x1_multisig_account_MultisigAccount">MultisigAccount</a>&gt;(<a href="multisig_account.md#0x1_multisig_account">multisig_account</a>);
     <b>let</b> (num_approvals, _) = <a href="multisig_account.md#0x1_multisig_account_remove_executed_transaction">remove_executed_transaction</a>(multisig_account_resource);
+    <b>if</b> (std::features::module_event_migration_enabled()) {
+        emit(
+            <a href="multisig_account.md#0x1_multisig_account_TransactionExecutionFailed">TransactionExecutionFailed</a> {
+                <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>,
+                executor,
+                sequence_number: multisig_account_resource.last_executed_sequence_number,
+                transaction_payload,
+                num_approvals,
+                execution_error,
+            }
+        );
+    };
     emit_event(
         &<b>mut</b> multisig_account_resource.transaction_execution_failed_events,
         <a href="multisig_account.md#0x1_multisig_account_TransactionExecutionFailedEvent">TransactionExecutionFailedEvent</a> {
-            executor,
-            sequence_number: multisig_account_resource.last_executed_sequence_number,
-            transaction_payload,
-            num_approvals,
-            execution_error,
-        }
-    );
-    emit(
-        <a href="multisig_account.md#0x1_multisig_account_TransactionExecutionFailed">TransactionExecutionFailed</a> {
-            <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>,
             executor,
             sequence_number: multisig_account_resource.last_executed_sequence_number,
             transaction_payload,
@@ -2947,18 +2959,27 @@ This function is private so no other code can call this beside the VM itself as 
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="multisig_account.md#0x1_multisig_account_add_transaction">add_transaction</a>(creator: <b>address</b>, multisig_account_address: <b>address</b>, <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: &<b>mut</b> <a href="multisig_account.md#0x1_multisig_account_MultisigAccount">MultisigAccount</a>, transaction: <a href="multisig_account.md#0x1_multisig_account_MultisigTransaction">MultisigTransaction</a>) {
+<pre><code><b>fun</b> <a href="multisig_account.md#0x1_multisig_account_add_transaction">add_transaction</a>(
+    creator: <b>address</b>,
+    multisig_account_address: <b>address</b>,
+    <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: &<b>mut</b> <a href="multisig_account.md#0x1_multisig_account_MultisigAccount">MultisigAccount</a>,
+    transaction: <a href="multisig_account.md#0x1_multisig_account_MultisigTransaction">MultisigTransaction</a>
+) {
     // The transaction creator also automatically votes for the transaction.
     <a href="../../aptos-stdlib/doc/simple_map.md#0x1_simple_map_add">simple_map::add</a>(&<b>mut</b> transaction.votes, creator, <b>true</b>);
 
     <b>let</b> sequence_number = <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>.next_sequence_number;
     <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>.next_sequence_number = sequence_number + 1;
     <a href="../../aptos-stdlib/doc/table.md#0x1_table_add">table::add</a>(&<b>mut</b> <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>.transactions, sequence_number, transaction);
+    <b>if</b> (std::features::module_event_migration_enabled()) {
+        emit(
+            <a href="multisig_account.md#0x1_multisig_account_CreateTransaction">CreateTransaction</a> { <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_account_address, creator, sequence_number, transaction }
+        );
+    };
     emit_event(
         &<b>mut</b> <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>.create_transaction_events,
         <a href="multisig_account.md#0x1_multisig_account_CreateTransactionEvent">CreateTransactionEvent</a> { creator, sequence_number, transaction },
     );
-    emit(<a href="multisig_account.md#0x1_multisig_account_CreateTransaction">CreateTransaction</a> { <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_account_address, creator, sequence_number, transaction });
 }
 </code></pre>
 
@@ -3187,11 +3208,13 @@ Add new owners, remove owners to remove, update signatures required.
             &multisig_account_ref_mut.owners,
             multisig_address
         );
+        <b>if</b> (std::features::module_event_migration_enabled()) {
+            emit(<a href="multisig_account.md#0x1_multisig_account_AddOwners">AddOwners</a> { <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_address, owners_added: new_owners });
+        };
         emit_event(
             &<b>mut</b> multisig_account_ref_mut.add_owners_events,
             <a href="multisig_account.md#0x1_multisig_account_AddOwnersEvent">AddOwnersEvent</a> { owners_added: new_owners }
         );
-        emit(<a href="multisig_account.md#0x1_multisig_account_AddOwners">AddOwners</a> { <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_address, owners_added: new_owners });
     };
     // If owners <b>to</b> remove provided, try <b>to</b> remove them.
     <b>if</b> (<a href="../../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector_length">vector::length</a>(&owners_to_remove) &gt; 0) {
@@ -3209,12 +3232,14 @@ Add new owners, remove owners to remove, update signatures required.
         });
         // Only emit <a href="event.md#0x1_event">event</a> <b>if</b> owner(s) actually removed.
         <b>if</b> (<a href="../../aptos-stdlib/../move-stdlib/doc/vector.md#0x1_vector_length">vector::length</a>(&owners_removed) &gt; 0) {
+            <b>if</b> (std::features::module_event_migration_enabled()) {
+                emit(
+                    <a href="multisig_account.md#0x1_multisig_account_RemoveOwners">RemoveOwners</a> { <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_address, owners_removed }
+                );
+            };
             emit_event(
                 &<b>mut</b> multisig_account_ref_mut.remove_owners_events,
                 <a href="multisig_account.md#0x1_multisig_account_RemoveOwnersEvent">RemoveOwnersEvent</a> { owners_removed }
-            );
-            emit(
-                <a href="multisig_account.md#0x1_multisig_account_RemoveOwners">RemoveOwners</a> { <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_address, owners_removed }
             );
         }
     };
@@ -3232,16 +3257,18 @@ Add new owners, remove owners to remove, update signatures required.
         <b>if</b> (new_num_signatures_required != old_num_signatures_required) {
             multisig_account_ref_mut.num_signatures_required =
                 new_num_signatures_required;
+            <b>if</b> (std::features::module_event_migration_enabled()) {
+                emit(
+                    <a href="multisig_account.md#0x1_multisig_account_UpdateSignaturesRequired">UpdateSignaturesRequired</a> {
+                        <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_address,
+                        old_num_signatures_required,
+                        new_num_signatures_required,
+                    }
+                );
+            };
             emit_event(
                 &<b>mut</b> multisig_account_ref_mut.update_signature_required_events,
                 <a href="multisig_account.md#0x1_multisig_account_UpdateSignaturesRequiredEvent">UpdateSignaturesRequiredEvent</a> {
-                    old_num_signatures_required,
-                    new_num_signatures_required,
-                }
-            );
-            emit(
-                <a href="multisig_account.md#0x1_multisig_account_UpdateSignaturesRequired">UpdateSignaturesRequired</a> {
-                    <a href="multisig_account.md#0x1_multisig_account">multisig_account</a>: multisig_address,
                     old_num_signatures_required,
                     new_num_signatures_required,
                 }

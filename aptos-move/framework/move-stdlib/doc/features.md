@@ -97,6 +97,8 @@ return true.
 -  [Function `is_object_code_deployment_enabled`](#0x1_features_is_object_code_deployment_enabled)
 -  [Function `get_max_object_nesting_check_feature`](#0x1_features_get_max_object_nesting_check_feature)
 -  [Function `max_object_nesting_check_enabled`](#0x1_features_max_object_nesting_check_enabled)
+-  [Function `get_module_event_migration_feature`](#0x1_features_get_module_event_migration_feature)
+-  [Function `module_event_migration_enabled`](#0x1_features_module_event_migration_enabled)
 -  [Function `change_feature_flags`](#0x1_features_change_feature_flags)
 -  [Function `is_enabled`](#0x1_features_is_enabled)
 -  [Function `set`](#0x1_features_set)
@@ -462,6 +464,18 @@ Lifetime: transient
 
 
 <pre><code><b>const</b> <a href="features.md#0x1_features_MODULE_EVENT">MODULE_EVENT</a>: u64 = 26;
+</code></pre>
+
+
+
+<a id="0x1_features_MODULE_EVENT_MIGRATION"></a>
+
+Whether aptos_framwork enables the behavior of module event migration.
+
+Lifetime: transient
+
+
+<pre><code><b>const</b> <a href="features.md#0x1_features_MODULE_EVENT_MIGRATION">MODULE_EVENT_MIGRATION</a>: u64 = 54;
 </code></pre>
 
 
@@ -2192,6 +2206,52 @@ Lifetime: transient
 
 <pre><code><b>public</b> <b>fun</b> <a href="features.md#0x1_features_max_object_nesting_check_enabled">max_object_nesting_check_enabled</a>(): bool <b>acquires</b> <a href="features.md#0x1_features_Features">Features</a> {
     <a href="features.md#0x1_features_is_enabled">is_enabled</a>(<a href="features.md#0x1_features_MAX_OBJECT_NESTING_CHECK">MAX_OBJECT_NESTING_CHECK</a>)
+}
+</code></pre>
+
+
+
+</details>
+
+<a id="0x1_features_get_module_event_migration_feature"></a>
+
+## Function `get_module_event_migration_feature`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="features.md#0x1_features_get_module_event_migration_feature">get_module_event_migration_feature</a>(): u64
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="features.md#0x1_features_get_module_event_migration_feature">get_module_event_migration_feature</a>(): u64 { <a href="features.md#0x1_features_MODULE_EVENT_MIGRATION">MODULE_EVENT_MIGRATION</a> }
+</code></pre>
+
+
+
+</details>
+
+<a id="0x1_features_module_event_migration_enabled"></a>
+
+## Function `module_event_migration_enabled`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="features.md#0x1_features_module_event_migration_enabled">module_event_migration_enabled</a>(): bool
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="features.md#0x1_features_module_event_migration_enabled">module_event_migration_enabled</a>(): bool <b>acquires</b> <a href="features.md#0x1_features_Features">Features</a> {
+    <a href="features.md#0x1_features_is_enabled">is_enabled</a>(<a href="features.md#0x1_features_MODULE_EVENT_MIGRATION">MODULE_EVENT_MIGRATION</a>)
 }
 </code></pre>
 

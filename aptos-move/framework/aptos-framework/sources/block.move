@@ -86,11 +86,13 @@ module aptos_framework::block {
         let old_epoch_interval = block_resource.epoch_interval;
         block_resource.epoch_interval = new_epoch_interval;
 
+        if (std::features::module_event_migration_enabled()) {
+            event::emit(
+                UpdateEpochIntervalEvent { old_epoch_interval, new_epoch_interval },
+            );
+        };
         event::emit_event<UpdateEpochIntervalEvent>(
             &mut block_resource.update_epoch_interval_events,
-            UpdateEpochIntervalEvent { old_epoch_interval, new_epoch_interval },
-        );
-        event::emit(
             UpdateEpochIntervalEvent { old_epoch_interval, new_epoch_interval },
         );
     }
@@ -179,14 +181,21 @@ module aptos_framework::block {
     }
 
     /// Emit the event and update height and global timestamp
-    fun emit_new_block_event(vm: &signer, event_handle: &mut EventHandle<NewBlockEvent>, new_block_event: NewBlockEvent, new_block_event_v2: NewBlockEvent) {
+    fun emit_new_block_event(
+        vm: &signer,
+        event_handle: &mut EventHandle<NewBlockEvent>,
+        new_block_event: NewBlockEvent,
+        new_block_event_v2: NewBlockEvent
+    ) {
         timestamp::update_global_time(vm, new_block_event.proposer, new_block_event.time_microseconds);
         assert!(
             event::counter(event_handle) == new_block_event.height,
             error::invalid_argument(ENUM_NEW_BLOCK_EVENTS_DOES_NOT_MATCH_BLOCK_HEIGHT),
         );
+        if (std::features::module_event_migration_enabled()) {
+            event::emit(new_block_event_v2);
+        };
         event::emit_event<NewBlockEvent>(event_handle, new_block_event);
-        event::emit(new_block_event_v2);
     }
 
     /// Emit a `NewBlockEvent` event. This function will be invoked by genesis directly to generate the very first
@@ -227,20 +236,22 @@ module aptos_framework::block {
         let block_metadata_ref = borrow_global_mut<BlockResource>(@aptos_framework);
         block_metadata_ref.height = event::counter(&block_metadata_ref.new_block_events);
 
+        if (std::features::module_event_migration_enabled()) {
+            event::emit(
+                NewBlockEvent {
+                    hash: fake_block_hash,
+                    epoch: reconfiguration::current_epoch(),
+                    round: MAX_U64,
+                    height: block_metadata_ref.height,
+                    previous_block_votes_bitvec: vector::empty(),
+                    proposer: @vm_reserved,
+                    failed_proposer_indices: vector::empty(),
+                    time_microseconds: timestamp::now_microseconds(),
+                }
+            );
+        };
         event::emit_event<NewBlockEvent>(
             &mut block_metadata_ref.new_block_events,
-            NewBlockEvent {
-                hash: fake_block_hash,
-                epoch: reconfiguration::current_epoch(),
-                round: MAX_U64,
-                height: block_metadata_ref.height,
-                previous_block_votes_bitvec: vector::empty(),
-                proposer: @vm_reserved,
-                failed_proposer_indices: vector::empty(),
-                time_microseconds: timestamp::now_microseconds(),
-            }
-        );
-        event::emit(
             NewBlockEvent {
                 hash: fake_block_hash,
                 epoch: reconfiguration::current_epoch(),
