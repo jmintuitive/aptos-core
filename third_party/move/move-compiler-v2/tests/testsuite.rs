@@ -378,6 +378,7 @@ impl TestConfig {
                 dump_annotated_targets: true,
             }
         } else if path.contains("/default-sbc-optimize/") {
+            // Test the default stackless bytecode optimization pipeline.
             pipeline.add_processor_without_annotation_dump(Box::new(
                 LiveVarAnalysisProcessor::new(false),
             ));
