@@ -156,6 +156,12 @@ impl fmt::Display for NetworkId {
 const VFN_NETWORK: &str = "vfn";
 
 impl NetworkId {
+    /// Returns a list of all network types. New network types
+    /// should be added here.
+    pub fn get_all_networks() -> Vec<NetworkId> {
+        vec![NetworkId::Validator, NetworkId::Vfn, NetworkId::Public]
+    }
+
     pub fn is_public_network(&self) -> bool {
         self == &NetworkId::Public
     }
